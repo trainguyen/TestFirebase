@@ -1,18 +1,26 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getMessaging } from 'firebase-admin/messaging';
+import fs from 'fs';
+import path from 'path';
 
 // Khởi tạo Firebase Admin SDK (chỉ khởi tạo 1 lần)
 if (!getApps().length) {
   try {
     const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT;
+    const serviceAccountPath = path.resolve(process.cwd(), 'service-account.json');
     
     if (serviceAccountString) {
       const serviceAccount = JSON.parse(serviceAccountString);
       initializeApp({
         credential: cert(serviceAccount)
       });
+    } else if (fs.existsSync(serviceAccountPath)) {
+      const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+      initializeApp({
+        credential: cert(serviceAccount)
+      });
     } else {
-      console.warn("Chưa cấu hình biến môi trường FIREBASE_SERVICE_ACCOUNT.");
+      console.warn("Chưa cấu hình biến môi trường FIREBASE_SERVICE_ACCOUNT và không tìm thấy service-account.json.");
     }
   } catch (error) {
     console.error("Lỗi khởi tạo Firebase Admin:", error);
