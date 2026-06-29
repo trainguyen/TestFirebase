@@ -38,9 +38,30 @@ export const requestForToken = async () => {
   }
 };
 
-export const onMessageListener = () =>
-  new Promise((resolve) => {
-    onMessage(messaging, (payload) => {
-      resolve(payload);
-    });
+export const setupMessageListener = (callback) => {
+  return onMessage(messaging, (payload) => {
+    if (callback) {
+      callback(payload);
+    }
   });
+};
+
+let globalFcmInitialized = false;
+export const initGlobalFCM = () => {
+  if (globalFcmInitialized) return;
+  globalFcmInitialized = true;
+  
+  onMessage(messaging, (payload) => {
+    console.log('Received foreground message (Global): ', payload);
+    
+    // Bắt buộc hiển thị thông báo hệ điều hành (OS Notification) ngay cả khi đang mở tab
+    if (Notification && Notification.permission === 'granted') {
+      const notificationTitle = payload?.notification?.title || 'Thông báo mới';
+      const notificationOptions = {
+        body: payload?.notification?.body || '',
+        icon: '/vite.svg',
+      };
+      new Notification(notificationTitle, notificationOptions);
+    }
+  });
+};

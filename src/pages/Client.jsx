@@ -8,17 +8,21 @@ export default function Client() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // Listen for foreground notifications
-    onMessageListener()
-      .then((payload) => {
+    // Lắng nghe và hiển thị banner trong trang Client
+    import('../firebase').then(({ setupMessageListener }) => {
+      const unsubscribe = setupMessageListener((payload) => {
         setNotification({
           title: payload?.notification?.title,
           body: payload?.notification?.body,
         });
-        // Clear notification after 5 seconds
+        // Tắt banner sau 5 giây
         setTimeout(() => setNotification(null), 5000);
-      })
-      .catch((err) => console.log('failed: ', err));
+      });
+      
+      return () => {
+        if (unsubscribe) unsubscribe();
+      };
+    });
   }, []);
 
   const handleGetToken = async () => {

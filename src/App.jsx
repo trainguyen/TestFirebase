@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Client from './pages/Client';
 import Admin from './pages/Admin';
 import { ShieldAlert } from 'lucide-react';
+import { initGlobalFCM } from './firebase';
 
 function App() {
+  useEffect(() => {
+    // Kích hoạt hiển thị OS Notification 1 lần duy nhất trên toàn ứng dụng
+    initGlobalFCM();
+  }, []);
+
   return (
     <BrowserRouter>
       {/* Simple Navigation Bar */}
