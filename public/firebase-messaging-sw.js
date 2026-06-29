@@ -20,11 +20,6 @@ messaging.onBackgroundMessage((payload) => {
     '[firebase-messaging-sw.js] Received background message ',
     payload
   );
-  const notificationTitle = payload.notification.title || "Background Message";
-  const notificationOptions = {
-    body: payload.notification.body || "You have a new background message.",
-    icon: '/vite.svg'
-  };
-
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  // Lưu ý: Firebase SDK sẽ tự động hiển thị thông báo hệ điều hành nếu payload chứa object "notification".
+  // Không nên gọi self.registration.showNotification ở đây nữa để tránh bị lặp (double) thông báo.
 });
