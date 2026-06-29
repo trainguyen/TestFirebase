@@ -3,12 +3,13 @@ importScripts('https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging-comp
 
 // TODO: Replace with your Firebase project configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDphvwtLh9jndCY9q2yPXAkCLPYmpa4GZY",
+  authDomain: "mylove-7f36f.firebaseapp.com",
+  projectId: "mylove-7f36f",
+  storageBucket: "mylove-7f36f.firebasestorage.app",
+  messagingSenderId: "614144014271",
+  appId: "1:614144014271:web:9187d109f70c1447f6130a",
+  measurementId: "G-T01BTDK0DY"
 };
 
 firebase.initializeApp(firebaseConfig);
