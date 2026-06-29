@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import admin from 'firebase-admin';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getMessaging } from 'firebase-admin/messaging';
 import fs from 'fs';
 import path from 'path';
 
@@ -21,16 +22,16 @@ function firebaseApiPlugin() {
         req.on('end', async () => {
           try {
             // Khởi tạo Firebase Admin nếu chưa khởi tạo
-            if (!admin.apps.length) {
+            if (!getApps().length) {
               const serviceAccountPath = path.resolve(process.cwd(), 'service-account.json');
               if (fs.existsSync(serviceAccountPath)) {
                 const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
-                admin.initializeApp({
-                  credential: admin.credential.cert(serviceAccount)
+                initializeApp({
+                  credential: cert(serviceAccount)
                 });
               } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-                admin.initializeApp({
-                  credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
+                initializeApp({
+                  credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
                 });
               } else {
                 throw new Error("Không tìm thấy service-account.json hoặc biến môi trường FIREBASE_SERVICE_ACCOUNT");
@@ -50,7 +51,7 @@ function firebaseApiPlugin() {
               token: data.token
             };
 
-            const response = await admin.messaging().send(message);
+            const response = await getMessaging().send(message);
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({ success: true, messageId: response }));
           } catch (e) {

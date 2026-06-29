@@ -1,17 +1,15 @@
-import admin from 'firebase-admin';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getMessaging } from 'firebase-admin/messaging';
 
 // Khởi tạo Firebase Admin SDK (chỉ khởi tạo 1 lần)
-if (!admin.apps.length) {
+if (!getApps().length) {
   try {
-    // Để gửi thông báo từ server, bạn cần Service Account JSON của Firebase.
-    // Cách 1: Sử dụng biến môi trường (Khuyên dùng khi deploy lên Vercel)
-    // FIREBASE_SERVICE_ACCOUNT là chuỗi JSON của file service-account.json
     const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT;
     
     if (serviceAccountString) {
       const serviceAccount = JSON.parse(serviceAccountString);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+      initializeApp({
+        credential: cert(serviceAccount)
       });
     } else {
       console.warn("Chưa cấu hình biến môi trường FIREBASE_SERVICE_ACCOUNT.");
@@ -32,7 +30,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing token, title, or body' });
   }
 
-  if (!admin.apps.length) {
+  if (!getApps().length) {
     return res.status(500).json({ 
       error: 'Firebase Admin chưa được cấu hình. Bạn cần thêm biến môi trường FIREBASE_SERVICE_ACCOUNT chứa nội dung file JSON Service Account.' 
     });
@@ -40,15 +38,11 @@ export default async function handler(req, res) {
 
   try {
     const message = {
-      notification: {
-        title,
-        body
-      },
+      notification: { title, body },
       token
     };
 
-    // Gửi thông báo
-    const response = await admin.messaging().send(message);
+    const response = await getMessaging().send(message);
     console.log('Successfully sent message:', response);
 
     return res.status(200).json({ success: true, messageId: response });
