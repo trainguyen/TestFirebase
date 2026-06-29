@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { requestForToken, onMessageListener } from '../firebase';
+import { requestForToken } from '../firebase';
 import { Bell, Copy, CheckCircle2 } from 'lucide-react';
 
 export default function Client() {
