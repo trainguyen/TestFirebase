@@ -6,8 +6,14 @@ export default function Client() {
   const [token, setToken] = useState('');
   const [notification, setNotification] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
+    const savedStatus = localStorage.getItem('fcm_token_saved');
+    if (savedStatus === 'true') {
+      setIsSubscribed(true);
+    }
+
     // Lắng nghe và hiển thị banner trong trang Client
     import('../firebase').then(({ setupMessageListener }) => {
       const unsubscribe = setupMessageListener((payload) => {
@@ -29,6 +35,20 @@ export default function Client() {
     const fetchedToken = await requestForToken();
     if (fetchedToken) {
       setToken(fetchedToken);
+      try {
+        const response = await fetch('/api/save-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: fetchedToken })
+        });
+        
+        if (response.ok) {
+          localStorage.setItem('fcm_token_saved', 'true');
+          setIsSubscribed(true);
+        }
+      } catch (err) {
+        console.error("Lỗi khi gửi token lên server:", err);
+      }
     }
   };
 
@@ -50,14 +70,21 @@ export default function Client() {
             Cấp quyền để nhận thông báo và lấy FCM Token của thiết bị này.
           </p>
 
-          {!token ? (
+          {isSubscribed ? (
+            <div className="bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 flex items-center justify-center space-x-2 mb-4">
+              <CheckCircle2 className="w-6 h-6" />
+              <span className="font-medium">Bạn đã đăng ký nhận thông báo</span>
+            </div>
+          ) : (
             <button
               onClick={handleGetToken}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out transform hover:scale-[1.02] active:scale-95 shadow-md"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out transform hover:scale-[1.02] active:scale-95 shadow-md mb-4"
             >
-              Cấp Quyền & Lấy Token
+              Bật Thông Báo
             </button>
-          ) : (
+          )}
+          
+          {token && (
             <div className="text-left bg-gray-50 p-4 rounded-xl border border-gray-200">
               <label className="block text-xs font-medium text-gray-500 uppercase mb-2">
                 FCM Token của bạn
