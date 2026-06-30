@@ -45,9 +45,14 @@ export default function Client() {
         if (response.ok) {
           localStorage.setItem('fcm_token_saved', 'true');
           setIsSubscribed(true);
+          alert('Đăng ký nhận thông báo thành công!');
+        } else {
+          const errData = await response.json().catch(() => ({}));
+          alert('Lỗi lưu token trên server: ' + (errData.error || response.statusText));
         }
       } catch (err) {
         console.error("Lỗi khi gửi token lên server:", err);
+        alert('Không thể kết nối đến server để lưu token!');
       }
     }
   };
